@@ -21,6 +21,7 @@ const {
     getCallById,
     getAllCalls,
     addPeer,
+    removePeer,
     clear
 } = require('./Call');
 
@@ -50,6 +51,14 @@ app.get('/api/calls/:callid/peers/v1/addpeer/:peerid', (req, res) => {
     if (!call) res.status(404).json({ message: 'Call not found' });
 
     res.json(addPeer(call, req.params.peerid));
+});
+
+app.get('/api/calls/:callid/peers/v1/removepeer/:peerid', (req, res) => {
+    const call = getCallById(req.params.callid);
+
+    if (!call) res.status(404).json({ message: 'Call not found' });
+
+    res.json(removePeer(call, req.params.peerid));
 });
 
 // TODO: post

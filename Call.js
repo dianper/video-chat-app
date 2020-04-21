@@ -26,8 +26,17 @@ exports.getAllCalls = function () {
 }
 
 exports.addPeer = function (call, peerId) {
+    if (call.peers.indexOf(peerId) > -1) return call;
+
     call.peers.push(peerId);
     return call;
+}
+
+exports.removePeer = function (call, peerId) {
+    const index = call.peers.indexOf(peerId);
+    if (index > -1) {
+        call.peers.splice(index, 1);
+    }
 }
 
 exports.clear = function () {
