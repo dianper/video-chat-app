@@ -1,21 +1,21 @@
 import React from 'react';
-import Api from '../ajaxConfig';
+// import Api from '../ajaxConfig';
 
-function Home() {
+export default function Home() {
   function createCall() {
-    const input_username = document.getElementById('username');
+    /* const input_username = document.getElementById('username');
     if (!input_username.value) {
       input_username.focus();
       alert('Username is required!');
       return;
-    }
+    } */
 
-    Api.get('calls/v1/create')
+    /* Api.get('calls/v1/create')
       .then(response => {
         if (response.data) {
-          window.location.href = `/calls/${response.data.id}/${input_username.value}`;
+          window.location.href = `/calls/${response.data.id}`;
         }
-      }).catch(err => console.log(err));
+      }).catch(err => console.log(err)); */
   }
 
   function join() {
@@ -34,14 +34,14 @@ function Home() {
       return;
     }
 
-    Api.get('calls/' + input_callid.value)
+    /* Api.get('calls/' + input_callid.value)
       .then(response => {
         if (response.data) {
           window.location.href = `/calls/${response.data.id}/${input_username.value}`;
         } else {
           alert('Call not exist!');
         }
-      }).catch(err => console.log(err));
+      }).catch(err => console.log(err)); */
   }
 
   return (
@@ -59,5 +59,3 @@ function Home() {
     </div>
   );
 }
-
-export default Home;
