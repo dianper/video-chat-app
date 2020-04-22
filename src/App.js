@@ -1,15 +1,13 @@
 import React from 'react';
-import { Footer, Header, Routers } from './components';
+import { Footer, Header, Main } from './components';
 import './App.css';
 
-function App() {
+export default function App() {
   return (
     <div className="App">
       <Header />
-      <Routers />
+      <Main />
       <Footer />
     </div>
   );
 }
-
-export default App;
