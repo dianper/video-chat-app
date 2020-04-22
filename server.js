@@ -3,16 +3,18 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
 const app = express();
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 5080;
+const { ExpressPeerServer } = require('peer');
 
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, './build')));
 
-app.listen(port, () => {
-    console.log(`Listening on port ${port}`);
-});
+const server = app.listen(port, () => console.log(`Listening on port ${port}`));
+const peerServer = ExpressPeerServer(server, { debug: true });
+
+app.use('/peerjs', peerServer);
 
 /* START API */
 
@@ -61,7 +63,6 @@ app.get('/api/calls/:callid/peers/v1/removepeer/:peerid', (req, res) => {
     res.json(removePeer(call, req.params.peerid));
 });
 
-// TODO: post
 app.get('/api/clearCalls', (req, res) => {
     res.json(clear());
 });
