@@ -6,7 +6,7 @@ export default function Main() {
   return (
     <Switch>
       <Route exact path="/" component={Home} />
-      <Route path="/calls/:id" component={Call} />
+      <Route path="/calls/:id/:isnew?" component={Call} />
       <Route path="*" component={Home} />
     </Switch>
   )

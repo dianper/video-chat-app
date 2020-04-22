@@ -1,53 +1,95 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams } from "react-router-dom";
 import Peer from 'peerjs';
 
 export default function Call() {
-  /** TODO: Check if id exist */
-  const { id } = useParams();
-  const [mainPeer, setMainPeer] = useState();
-  const [isEnable, setIsEnabled] = useState(false);
+  const { id, isnew } = useParams();
+  const isNew = !!(isnew && parseInt(isnew) === 1);
+  const uuid = require('uuid');
+  const peerId = isNew ? id : uuid.v1();
+  const peer = new Peer(peerId);
+
+  const [myPeerId, setMyPeerId] = useState();
+  const [connections, setConnections] = useState([]);
+  const [message, setMessage] = useState();
+  const [isReadyToJoin, setReadyToJoin] = useState(false);
+  const [inCall, setInCall] = useState(false);
+
+  const chatInput = useRef(null);
 
   useEffect(() => {
-    function init() {
-      const peer = new Peer(id);
-      peer.on('open', () => {
-        console.log('main connected', peer.id);
-        setIsEnabled(true);
+    //sendNotification(message);
+  }, [connections, message]);
+
+  useEffect(() => {
+    peer.on('open', () => {
+      setMyPeerId(peer.id);
+      setReadyToJoin(true);
+    });
+
+    peer.on('connection', (connection) => {
+      connection.on('open', () => {
+        setConnections(connections => [...connections, { id: connection.peer, conn: connection }]);
+        //setMessage({ id: connection.peer, message: 'joined' });
+        printMessage({ id: connection.peer, message: 'joined' });
       });
 
-      peer.on('error', (err) => {
-        console.log(err);
-      });
+      connection.on('data', (data) => {
+        printMessage({ id: data.id, message: data.message });
+      })
 
-      peer.on('connection', (connection) => {
-        connection.on('open', () => {
-          console.log('peer connected', connection.peer);
-          console.log('peer', peer);
-        });
-      });
-
-      setMainPeer(peer);
-    }
-
-    init();
-  }, [id]);
-
-  function addConnection() {
-    const np = new Peer();
-    np.on('open', () => {
-      const conn = np.connect(mainPeer.id);
-      conn.on('open', () => {
-        console.log('new peer', conn.peer);
+      connection.on('close', () => {
+        console.log(connections);
+        printMessage({ id: connection.peer, message: 'left' });
       });
     });
+
+    peer.on('disconnected', () => {
+      console.log('disconnected');
+    });
+
+    peer.on('error', (err) => {
+      console.log(err);
+    });
+  }, []);
+
+  function sendNotification(data) {
+    if (connections.length && data) {
+      connections.forEach(item => {
+        item.conn.send(data);
+      });
+    }
+  }
+
+  function join() {
+    const peerConnected = peer.connect(id);
+    peerConnected.on('open', () => {});
+    peerConnected.on('data', (data) => {
+      if (data.id === peer.id) {
+        setInCall(true);
+      }
+
+      printMessage({ id: data.id, message: data.message });
+    })
+
+    peerConnected.on('close', () => {
+      printMessage({ id: peerConnected.peer, message: 'left' });
+    });
+  }
+
+  function printMessage(data) {
+    chatInput.current.innerText += `${data.id} - ${data.message}\n`;
   }
 
   return (
     <div>
-      <h3>Call ID: {id}</h3>
+      <h3>{myPeerId ? `Call ID: ${myPeerId}` : "# getting id.. #"}</h3>
       <div id="videos"></div>
-      <button onClick={() => addConnection()} disabled={!isEnable}>Add connection</button>
+      {!isNew && isReadyToJoin && !inCall && <button onClick={() => join()}>Join</button>}
+      <br />
+      <a href={`/calls/${id}`} target="_blank" rel="noopener noreferrer">Share</a>
+      <br /><br />
+      <code ref={chatInput}></code>
     </div>
   );
 }
