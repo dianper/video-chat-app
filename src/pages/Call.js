@@ -7,18 +7,24 @@ export default function Call() {
   const isNew = !!(isnew && parseInt(isnew) === 1);
   const uuid = require('uuid');
   const peerId = isNew ? id : uuid.v1();
-  const peer = new Peer(peerId, {
-    host: 'moska-chat.herokuapp.com',
-    port: 443,
+  const config = process.env.NODE_ENV === 'development' ? {
+    host: 'localhost',
+    port: 5080,
     path: '/peerjs'
-  });
+  } : {
+      host: 'moska-chat.herokuapp.com',
+      port: 443,
+      path: '/peerjs'
+    };
 
+  const peer = new Peer(peerId, config);
   const [myPeerId, setMyPeerId] = useState();
   const [actCnns, setCnns] = useState([]);
   const [isReadyToJoin, setReadyToJoin] = useState(false);
   const [inCall, setInCall] = useState(false);
   const [count, setCount] = useState(0);
-  let peerConnected;
+  const [peerConnected, setPeerConnected] = useState();
+  const [message, setMessage] = useState();
 
   const chatInput = useRef(null);
   const textInput = useRef(null);
@@ -41,7 +47,10 @@ export default function Call() {
 
       connection.on('data', (data) => {
         console.log('[peer - data]', data);
-      })
+        if (data && data.type === 'message') {
+          setMessage({ from: data.id, message: data.message });
+        }
+      });
 
       connection.on('close', () => {
         console.log('[peer - close]', connection.peer);
@@ -59,14 +68,24 @@ export default function Call() {
     });
   }, []);
 
+  // Send count
   useEffect(() => {
     actCnns.forEach(item => {
       item.cn.send({ type: 'count', count });
     });
   }, [actCnns, count]);
 
+  // Update messages
+  useEffect(() => {
+    if (message) {
+      actCnns.forEach(item => {
+        item.cn.send({ type: 'message', id: message.from, message: message.message });
+      });
+    }
+  }, [message, actCnns]);
+
   function join() {
-    peerConnected = peer.connect(id);
+    let peerConnected = peer.connect(id);
     peerConnected.on('open', () => {
       console.log('[peerConnected - open]', peerConnected.peer);
       setInCall(true);
@@ -77,7 +96,7 @@ export default function Call() {
       if (data && data.type === 'count') {
         setCount(data.count);
       }
-    })
+    });
 
     peerConnected.on('close', () => {
       console.log('[peerConnected - close]');
@@ -86,18 +105,30 @@ export default function Call() {
     peerConnected.on('error', (err) => {
       console.log('[peerConnected - error]', err);
     });
+
+    setPeerConnected(peerConnected);
   }
 
+  // Send messages
   function send() {
     const message = textInput.current.value || "dummy message";
 
+    // Send to owner chat
     if (peerConnected) {
-      peerConnected.send(message);
+      peerConnected.send({ type: 'message', id: myPeerId, message: message });
+    } else {
+      addTextToChat();
     }
 
-    actCnns.forEach(item => {
-      item.cn.send(message);
-    });
+    // Send to all peers
+    setMessage({ from: myPeerId, message: message });
+
+    // Clear
+    textInput.current.value = '';
+  }
+
+  function addTextToChat(data) {
+    chatInput.current.innerHTML += "<b>ALLL</b><br />";
   }
 
   return (
@@ -107,9 +138,12 @@ export default function Call() {
       {!isNew && isReadyToJoin && !inCall && <button onClick={() => join()}>Join</button>}
       <br />
       {count > 0 ? `${count} online - ` : 'nobody online :( - '}
-      <a href={`/calls/${id}`} target="_blank" rel="noopener noreferrer">Share</a>
+      {/* <a href={`/calls/${id}`} target="_blank" rel="noopener noreferrer">Share</a> */}
+      <a href={`https://wa.me/?text=http://moska-chat.herokuapp.com/calls/${id}`}>Share to WhatsApp</a>
       <br /><br />
-      <code ref={chatInput}></code>
+      <div className="wrapper">
+        <div className="chat" ref={chatInput}>This chat is empty</div>
+      </div>
       <br /><br />
       <input type="text" ref={textInput}></input>
       <br /><br />

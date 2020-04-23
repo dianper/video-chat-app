@@ -28,3 +28,17 @@ header a {
 footer {
   padding-top: 40px;
 }
+
+.wrapper{
+  border: 1px solid #ccc;
+  width: 100%;
+  min-height: 100px;
+  max-height: 250px;
+  text-align: center;
+  overflow-y: scroll;
+}
+
+.chat {
+  text-align: left;
+  padding-left: 10px;
+}

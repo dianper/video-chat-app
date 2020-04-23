@@ -1,6 +1,8 @@
 import React from 'react';
 // import Api from '../ajaxConfig';
 
+console.log(process.env.NODE_ENV);
+
 export default function Home() {
   const uuid = require('uuid');
 
