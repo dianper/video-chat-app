@@ -174,7 +174,7 @@ export default function Call() {
         </div>
       </div>
       <h2 className="mb-4">Chat Room</h2>
-      <div className="row mb-2">
+      <div className="row mb-1">
         <div className="col-md-4 text-md-left text-sm-center">
           <div className="text-wrap font-italic">
             <small>{myPeerId ? `My ID: ${myPeerId}` : "# getting id.. #"}</small>
@@ -190,6 +190,13 @@ export default function Call() {
             ref={nickNameInput}
             className="form-control"
             placeholder="Nickname" />
+        </div>
+      </div>      
+      <div className="row mb-1">
+        <div className="col-12">
+          <div className="wrapper rounded" id="wrapperChat">
+            <div className="chat" ref={chatInput}></div>
+          </div>
         </div>
       </div>
       <div className="row">
@@ -208,13 +215,6 @@ export default function Call() {
                 id="button-addon1"
                 onClick={send}>Send</button>
             </div>
-          </div>
-        </div>
-      </div>
-      <div className="row">
-        <div className="col-12">
-          <div className="wrapper rounded" id="wrapperChat">
-            <div className="chat" ref={chatInput}></div>
           </div>
         </div>
       </div>

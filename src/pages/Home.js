@@ -23,7 +23,7 @@ export default function Home() {
     <div>
       <h2 className="mt-4 mb-4">Join / Create Chat</h2>
       <div className="row justify-content-center">
-        <div className="col-6">
+        <div className="col-sm-12 col-md-6">
           <input
             className="form-control"
             type="text"
