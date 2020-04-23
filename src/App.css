@@ -33,7 +33,7 @@ footer {
   border: 1px solid #ccc;
   width: 100%;
   min-height: 100px;
-  max-height: 250px;
+  max-height: 200px;
   text-align: center;
   overflow-y: scroll;
 }

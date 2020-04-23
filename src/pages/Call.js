@@ -131,6 +131,11 @@ export default function Call() {
     chatInput.current.innerHTML += "<b>ALLL</b><br />";
   }
 
+  function shareToWhatsApp() {
+    const url = encodeURIComponent(`https://moska-chat.herokuapp.com/calls/${id}`);
+    window.open(`https://wa.me/?text=${url}`);
+  }
+
   return (
     <div>
       <h3>{myPeerId ? `Call ID: ${myPeerId}` : "# getting id.. #"}</h3>
@@ -138,8 +143,7 @@ export default function Call() {
       {!isNew && isReadyToJoin && !inCall && <button onClick={() => join()}>Join</button>}
       <br />
       {count > 0 ? `${count} online - ` : 'nobody online :( - '}
-      {/* <a href={`/calls/${id}`} target="_blank" rel="noopener noreferrer">Share</a> */}
-      <a href={`https://wa.me/?text=http://moska-chat.herokuapp.com/calls/${id}`}>Share to WhatsApp</a>
+      <button onClick={shareToWhatsApp}>Share to WhatsApp</button>
       <br /><br />
       <div className="wrapper">
         <div className="chat" ref={chatInput}>This chat is empty</div>
