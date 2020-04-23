@@ -25,14 +25,10 @@ header a {
   color: white;
 }
 
-footer {
-  padding-top: 40px;
-}
-
 .wrapper{
   border: 1px solid #ccc;
   width: 100%;
-  min-height: 100px;
+  min-height: 200px;
   max-height: 200px;
   text-align: center;
   overflow-y: scroll;

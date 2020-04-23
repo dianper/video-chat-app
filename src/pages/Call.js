@@ -28,6 +28,7 @@ export default function Call() {
 
   const chatInput = useRef(null);
   const textInput = useRef(null);
+  const nickNameInput = useRef(null);
 
   useEffect(() => {
     peer.on('open', () => {
@@ -49,6 +50,7 @@ export default function Call() {
         console.log('[peer - data]', data);
         if (data && data.type === 'message') {
           setMessage({ from: data.id, message: data.message });
+          addTextToChat(data);
         }
       });
 
@@ -96,6 +98,10 @@ export default function Call() {
       if (data && data.type === 'count') {
         setCount(data.count);
       }
+
+      if (data && data.type === 'message') {
+        addTextToChat(data);
+      }
     });
 
     peerConnected.on('close', () => {
@@ -111,24 +117,42 @@ export default function Call() {
 
   // Send messages
   function send() {
-    const message = textInput.current.value || "dummy message";
+    const message = textInput.current.value;
+    const nickName = nickNameInput.current.value || myPeerId;
 
+    if (!message) {
+      alert('Message is required!');
+      textInput.current.focus();
+      return;
+    }
+
+    const data = { type: 'message', id: nickName, message: message };
     // Send to owner chat
     if (peerConnected) {
-      peerConnected.send({ type: 'message', id: myPeerId, message: message });
+      peerConnected.send(data);
     } else {
-      addTextToChat();
+      addTextToChat(data);
     }
 
     // Send to all peers
-    setMessage({ from: myPeerId, message: message });
+    setMessage({ from: nickName, message: message });
 
     // Clear
     textInput.current.value = '';
   }
 
   function addTextToChat(data) {
-    chatInput.current.innerHTML += "<b>ALLL</b><br />";
+    if (chatInput.current.innerHTML.indexOf('**') > -1) {
+      chatInput.current.innerHTML = '';
+    }
+
+    const date = new Date(Date.now()).toLocaleString('pt-Br');
+
+    chatInput.current.innerHTML += `<small><em><b>${data.id}</b> - ${date}:</em><br />${data.message}<br /></small>`;
+
+    scrollToBottom();
+
+    textInput.current.focus();
   }
 
   function shareToWhatsApp() {
@@ -136,22 +160,64 @@ export default function Call() {
     window.open(`https://wa.me/?text=${url}`);
   }
 
+  function scrollToBottom() {
+    const element = document.getElementById('wrapperChat');
+    element.scrollTop = element.scrollHeight;
+  }
+
   return (
     <div>
-      <h3>{myPeerId ? `Call ID: ${myPeerId}` : "# getting id.. #"}</h3>
-      <div id="videos"></div>
-      {!isNew && isReadyToJoin && !inCall && <button onClick={() => join()}>Join</button>}
-      <br />
-      {count > 0 ? `${count} online - ` : 'nobody online :( - '}
-      <button onClick={shareToWhatsApp}>Share to WhatsApp</button>
-      <br /><br />
-      <div className="wrapper">
-        <div className="chat" ref={chatInput}>This chat is empty</div>
+      <div className="row mt-1 mb-2">
+        <div className="col-12 text-right">
+          {!isNew && isReadyToJoin && !inCall && <button className="btn btn-primary btn-sm mr-1" onClick={() => join()}>Join</button>}
+          <button className="btn btn-success btn-sm" onClick={shareToWhatsApp}>Share to WhatsApp</button>
+        </div>
       </div>
-      <br /><br />
-      <input type="text" ref={textInput}></input>
-      <br /><br />
-      <button onClick={send}>Send</button>
+      <h2 className="mb-4">Chat Room</h2>
+      <div className="row mb-2">
+        <div className="col-md-4 text-md-left text-sm-center">
+          <div className="text-wrap font-italic">
+            <small>{myPeerId ? `My ID: ${myPeerId}` : "# getting id.. #"}</small>
+          </div>
+        </div>
+        <div className="col-md-4 mb-1">
+          <small>
+            <b>{count > 0 ? `${count} online - ` : 'room empty'}</b>
+          </small>
+        </div>
+        <div className="col-md-4 col-lg-2 offset-lg-2">
+          <input
+            ref={nickNameInput}
+            className="form-control"
+            placeholder="Nickname" />
+        </div>
+      </div>
+      <div className="row">
+        <div className="col-12">
+          <div className="input-group mb-1">
+            <input
+              ref={textInput}
+              className="form-control"
+              type="text"
+              placeholder="Your message here"
+              autoFocus="autofocus" />
+            <div className="input-group-append">
+              <button
+                className="btn btn-outline-secondary"
+                type="button"
+                id="button-addon1"
+                onClick={send}>Send</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="row">
+        <div className="col-12">
+          <div className="wrapper rounded" id="wrapperChat">
+            <div className="chat" ref={chatInput}></div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
