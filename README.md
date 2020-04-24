@@ -1,2 +1,6 @@
-# moskall-app-chat
-Basic chat with ReactJs and NodeJs
+# Chat Web App
+Basic chat with ReactJs, PeerJs and NodeJs
+
+```
+// TODO:
+```
