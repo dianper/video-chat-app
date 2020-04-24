@@ -75,7 +75,7 @@ export default function Call() {
     actCnns.forEach(item => {
       item.cn.send({ type: 'count', count });
     });
-  }, [actCnns, count]);
+  }, [count]);
 
   // Update messages
   useEffect(() => {
@@ -84,7 +84,7 @@ export default function Call() {
         item.cn.send({ type: 'message', id: message.from, message: message.message });
       });
     }
-  }, [message, actCnns]);
+  }, [message]);
 
   function join() {
     let peerConnected = peer.connect(id);
@@ -113,6 +113,12 @@ export default function Call() {
     });
 
     setPeerConnected(peerConnected);
+  }
+
+  function exit() {
+    peer.disconnect();
+    peer.destroy();
+    window.location.href = '/';
   }
 
   // Send messages
@@ -147,12 +153,8 @@ export default function Call() {
     }
 
     const date = new Date(Date.now()).toLocaleString('pt-Br');
-
     chatInput.current.innerHTML += `<small><em><b>${data.id}</b> - ${date}:</em><br />${data.message}<br /></small>`;
-
     scrollToBottom();
-
-    textInput.current.focus();
   }
 
   function shareToWhatsApp() {
@@ -160,17 +162,57 @@ export default function Call() {
     window.open(`https://wa.me/?text=${url}`);
   }
 
+  function copyToClipBoard() {
+    const el = document.createElement('textarea');
+    el.value = `https://moska-chat.herokuapp.com/calls/${id}`;
+    el.setAttribute('readonly', '');
+    el.style.position = 'absolute';
+    el.style.left = '-9999px';
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+  }
+
   function scrollToBottom() {
     const element = document.getElementById('wrapperChat');
     element.scrollTop = element.scrollHeight;
+  }
+
+  function renderJoinOrExitButton() {
+    if (inCall) {
+      return (<button className="btn btn-sm btn-danger mr-1" type="button" onClick={() => exit()}>Exit</button>);
+    }
+
+    return (
+      !isNew &&
+      isReadyToJoin &&
+      !inCall && <button className="btn btn-sm btn-primary mr-1" type="button" onClick={() => join()}>Join</button>
+    );
+  }
+
+  function renderDropdown() {
+    return (
+      <div className="dropdown">
+        <button className="btn btn-success btn-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Share
+        </button>
+        <div className="dropdown-menu" aria-labelledby="dropdownMenuButton">
+          <a className="dropdown-item" href="#" onClick={() => shareToWhatsApp()}>WhatsApp</a>
+          <a className="dropdown-item" href="#" onClick={() => copyToClipBoard()}>Copy Link</a>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div>
       <div className="row mt-1 mb-2">
         <div className="col-12 text-right">
-          {!isNew && isReadyToJoin && !inCall && <button className="btn btn-primary btn-sm mr-1" onClick={() => join()}>Join</button>}
-          <button className="btn btn-success btn-sm" onClick={shareToWhatsApp}>Share to WhatsApp</button>
+          <div className="d-flex flex-row">
+            {renderJoinOrExitButton()}
+            {renderDropdown()}
+          </div>
         </div>
       </div>
       <h2 className="mb-4">Chat Room</h2>
@@ -182,7 +224,7 @@ export default function Call() {
         </div>
         <div className="col-md-4 mb-1">
           <small>
-            <b>{count > 0 ? `${count} online - ` : 'room empty'}</b>
+            <b>{count > 0 ? `${count} online` : 'room empty'}</b>
           </small>
         </div>
         <div className="col-md-4 col-lg-2 offset-lg-2">
@@ -191,7 +233,7 @@ export default function Call() {
             className="form-control"
             placeholder="Nickname" />
         </div>
-      </div>      
+      </div>
       <div className="row mb-1">
         <div className="col-12">
           <div className="wrapper rounded" id="wrapperChat">
