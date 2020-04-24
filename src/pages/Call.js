@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams } from "react-router-dom";
 import Peer from 'peerjs';
+import { ShareDropdown } from './Chat/components';
 
 export default function Call() {
   const { id, isnew } = useParams();
@@ -131,7 +132,7 @@ export default function Call() {
   function send() {
     const message = textInput.current.value;
     const nickName = nickNameInput.current.value;
-    
+
     if (!nickName) {
       alert('Nickname is required!');
       nickNameInput.current.focus();
@@ -203,41 +204,12 @@ export default function Call() {
     );
   }
 
-  function renderShareDropdown() {
-    return (
-      <div className="dropdown">
-        <button className="btn btn-success btn-sm btn-block dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          Share this room
-        </button>
-        <div className="dropdown-menu" aria-labelledby="dropdownMenuButton">
-          <a className="dropdown-item" href="#" onClick={() => shareToWhatsApp()}>WhatsApp</a>
-          <a className="dropdown-item" href="#" onClick={() => copyToClipBoard()}>Copy Link</a>
-        </div>
-      </div>
-    );
-  }
-
-  function renderFooterChat() {
-    return (
-      <div className="row mt-2">
-        <div className="col-12 col-md-3 text-center text-md-left mb-2 mb-md-0">
-          {renderShareDropdown()}
-        </div>
-        <div className="col-12 col-md-9 text-center text-md-right">
-          <div className="text-wrap font-italic">
-            <small>{myPeerId ? `My ID: ${myPeerId}` : "# getting id.. #"}</small>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div>
       <div className="row mt-4 mb-2">
         <div className="col-12 col-md-9 text-center text-md-left mb-3 mb-md-0">
           <h2>Chat Room <span className="badge badge-primary">{count}</span></h2>
-        </div>        
+        </div>
         <div className="col-12 col-md-3 text-right">
           <div className="input-group input-group-sm">
             <input
@@ -276,7 +248,18 @@ export default function Call() {
           </div>
         </div>
       </div>
-      {renderFooterChat()}
+      <div className="row mt-2">
+        <div className="col-12 col-md-3 text-center text-md-left mb-2 mb-md-0">
+          <ShareDropdown
+            onHandleWhatsApp={shareToWhatsApp}
+            onHandleCopyLink={copyToClipBoard} />
+        </div>
+        <div className="col-12 col-md-9 text-center text-md-right">
+          <div className="text-wrap font-italic">
+            <small>{myPeerId ? `My ID: ${myPeerId}` : "# getting id.. #"}</small>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
