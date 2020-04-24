@@ -22,21 +22,25 @@ export default function Home() {
   return (
     <div>
       <h2 className="mt-4 mb-4">Join / Create Chat</h2>
-      <div className="row justify-content-center">
-        <div className="col-sm-12 col-md-6">
+      <div className="row mb-3 justify-content-center">
+        <div className="col-10 col-md-6">
           <input
             className="form-control"
             type="text"
             id="callId"
             name="callId"
             placeholder="Enter Call ID"
-            autoFocus="autofocus" /><br />
+            autoFocus="autofocus" />
+        </div>
+      </div>
+      <div className="row justify-content-center">
+        <div className="col-12">
           <button
-            className="btn btn-success"
-            onClick={join}>Join</button>&nbsp;
+            className="btn btn-success mr-1"
+            onClick={() => join()}>Join</button>
             <button
             className="btn btn-primary"
-            onClick={createCall}>Create</button>
+            onClick={() => createCall()}>Create</button>
         </div>
       </div>
     </div>

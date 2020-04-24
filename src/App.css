@@ -38,3 +38,8 @@ header a {
   text-align: left;
   padding-left: 10px;
 }
+
+.badge {
+  font-size: 12px;
+  vertical-align: middle;
+}

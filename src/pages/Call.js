@@ -87,6 +87,12 @@ export default function Call() {
   }, [message]);
 
   function join() {
+    if (!nickNameInput.current.value) {
+      alert('Nickname is required!');
+      nickNameInput.current.focus();
+      return;
+    }
+
     let peerConnected = peer.connect(id);
     peerConnected.on('open', () => {
       console.log('[peerConnected - open]', peerConnected.peer);
@@ -124,7 +130,13 @@ export default function Call() {
   // Send messages
   function send() {
     const message = textInput.current.value;
-    const nickName = nickNameInput.current.value || myPeerId;
+    const nickName = nickNameInput.current.value;
+    
+    if (!nickName) {
+      alert('Nickname is required!');
+      nickNameInput.current.focus();
+      return;
+    }
 
     if (!message) {
       alert('Message is required!');
@@ -152,7 +164,7 @@ export default function Call() {
       chatInput.current.innerHTML = '';
     }
 
-    const date = new Date(Date.now()).toLocaleString('pt-Br');
+    const date = new Date(Date.now()).toLocaleTimeString('pt-Br');
     chatInput.current.innerHTML += `<small><em><b>${data.id}</b> - ${date}:</em><br />${data.message}<br /></small>`;
     scrollToBottom();
   }
@@ -191,11 +203,11 @@ export default function Call() {
     );
   }
 
-  function renderDropdown() {
+  function renderShareDropdown() {
     return (
       <div className="dropdown">
-        <button className="btn btn-success btn-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          Share
+        <button className="btn btn-success btn-sm btn-block dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Share this room
         </button>
         <div className="dropdown-menu" aria-labelledby="dropdownMenuButton">
           <a className="dropdown-item" href="#" onClick={() => shareToWhatsApp()}>WhatsApp</a>
@@ -205,33 +217,37 @@ export default function Call() {
     );
   }
 
-  return (
-    <div>
-      <div className="row mt-1 mb-2">
-        <div className="col-12 text-right">
-          <div className="d-flex flex-row">
-            {renderJoinOrExitButton()}
-            {renderDropdown()}
-          </div>
+  function renderFooterChat() {
+    return (
+      <div className="row mt-2">
+        <div className="col-12 col-md-3 text-center text-md-left mb-2 mb-md-0">
+          {renderShareDropdown()}
         </div>
-      </div>
-      <h2 className="mb-4">Chat Room</h2>
-      <div className="row mb-1">
-        <div className="col-md-4 text-md-left text-sm-center">
+        <div className="col-12 col-md-9 text-center text-md-right">
           <div className="text-wrap font-italic">
             <small>{myPeerId ? `My ID: ${myPeerId}` : "# getting id.. #"}</small>
           </div>
         </div>
-        <div className="col-md-4 mb-1">
-          <small>
-            <b>{count > 0 ? `${count} online` : 'room empty'}</b>
-          </small>
-        </div>
-        <div className="col-md-4 col-lg-2 offset-lg-2">
-          <input
-            ref={nickNameInput}
-            className="form-control"
-            placeholder="Nickname" />
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div className="row mt-4 mb-2">
+        <div className="col-12 col-md-9 text-center text-md-left mb-3 mb-md-0">
+          <h2>Chat Room <span className="badge badge-primary">{count}</span></h2>
+        </div>        
+        <div className="col-12 col-md-3 text-right">
+          <div className="input-group input-group-sm">
+            <input
+              ref={nickNameInput}
+              className="form-control"
+              placeholder="Nickname" />
+            <div className="input-group-append">
+              {renderJoinOrExitButton()}
+            </div>
+          </div>
         </div>
       </div>
       <div className="row mb-1">
@@ -255,11 +271,12 @@ export default function Call() {
                 className="btn btn-outline-secondary"
                 type="button"
                 id="button-addon1"
-                onClick={send}>Send</button>
+                onClick={() => send()}>Send</button>
             </div>
           </div>
         </div>
       </div>
+      {renderFooterChat()}
     </div>
   );
 }
