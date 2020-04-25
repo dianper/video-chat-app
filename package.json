@@ -12,6 +12,7 @@
     "express": "^4.17.1",
     "peer": "^0.5.2",
     "peerjs": "^1.2.0",
+    "prop-types": "^15.7.2",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-router-dom": "^5.1.2",

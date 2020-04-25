@@ -1,22 +1,18 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams } from "react-router-dom";
 import Peer from 'peerjs';
-import { ShareDropdown } from './Chat/components';
+import {
+  ExitButton,
+  JoinButton,
+  ShareDropdown
+} from './Chat/components';
 
 export default function Call() {
   const { id, isnew } = useParams();
   const isNew = !!(isnew && parseInt(isnew) === 1);
   const uuid = require('uuid');
   const peerId = isNew ? id : uuid.v1();
-  const config = process.env.NODE_ENV === 'development' ? {
-    host: 'localhost',
-    port: 5080,
-    path: '/peerjs'
-  } : {
-      host: 'moska-chat.herokuapp.com',
-      port: 443,
-      path: '/peerjs'
-    };
+  const config = require('../peerConfig');
 
   const peer = new Peer(peerId, config);
   const [myPeerId, setMyPeerId] = useState();
@@ -40,11 +36,16 @@ export default function Call() {
 
     peer.on('connection', (connection) => {
       console.log('[peer - connection]', connection.peer);
+      console.log('[peer - connection - metadata]', connection.metadata);
+      const newJoinerMessage = `${connection.metadata.nickName} joined..`;
 
       connection.on('open', () => {
         console.log('[peer - connection - open]', connection.peer);
         setCnns(actCnns => [...actCnns, { id: connection.peer, cn: connection }]);
         setCount(count => count + 1);
+
+        setMessage({ from: 'system', message: newJoinerMessage });
+        addTextToChat({ id: 'system', message: newJoinerMessage });
       });
 
       connection.on('data', (data) => {
@@ -59,6 +60,9 @@ export default function Call() {
         console.log('[peer - close]', connection.peer);
         setCnns(actCnns => actCnns.filter(item => item.id !== connection.peer));
         setCount(count => count - 1);
+
+        setMessage({ from: 'system', message: `${connection.metadata.nickName} left..` });
+        addTextToChat({ id: 'system', message: `${connection.metadata.nickName} left..` });
       });
     });
 
@@ -94,7 +98,7 @@ export default function Call() {
       return;
     }
 
-    let peerConnected = peer.connect(id);
+    let peerConnected = peer.connect(id, { metadata: { nickName: nickNameInput.current.value } });
     peerConnected.on('open', () => {
       console.log('[peerConnected - open]', peerConnected.peer);
       setInCall(true);
@@ -170,23 +174,6 @@ export default function Call() {
     scrollToBottom();
   }
 
-  function shareToWhatsApp() {
-    const url = encodeURIComponent(`https://moska-chat.herokuapp.com/calls/${id}`);
-    window.open(`https://wa.me/?text=${url}`);
-  }
-
-  function copyToClipBoard() {
-    const el = document.createElement('textarea');
-    el.value = `https://moska-chat.herokuapp.com/calls/${id}`;
-    el.setAttribute('readonly', '');
-    el.style.position = 'absolute';
-    el.style.left = '-9999px';
-    document.body.appendChild(el);
-    el.select();
-    document.execCommand('copy');
-    document.body.removeChild(el);
-  }
-
   function scrollToBottom() {
     const element = document.getElementById('wrapperChat');
     element.scrollTop = element.scrollHeight;
@@ -194,13 +181,13 @@ export default function Call() {
 
   function renderJoinOrExitButton() {
     if (inCall) {
-      return (<button className="btn btn-sm btn-danger mr-1" type="button" onClick={() => exit()}>Exit</button>);
+      return (<ExitButton onHandleClick={exit} />);
     }
 
     return (
       !isNew &&
       isReadyToJoin &&
-      !inCall && <button className="btn btn-sm btn-primary mr-1" type="button" onClick={() => join()}>Join</button>
+      !inCall && <JoinButton onHandleClick={join} />
     );
   }
 
@@ -250,9 +237,7 @@ export default function Call() {
       </div>
       <div className="row mt-2">
         <div className="col-12 col-md-3 text-center text-md-left mb-2 mb-md-0">
-          <ShareDropdown
-            onHandleWhatsApp={shareToWhatsApp}
-            onHandleCopyLink={copyToClipBoard} />
+          <ShareDropdown id={id} />
         </div>
         <div className="col-12 col-md-9 text-center text-md-right">
           <div className="text-wrap font-italic">
