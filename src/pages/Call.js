@@ -27,6 +27,35 @@ export default function Call() {
   const textInput = useRef(null);
   const nickNameInput = useRef(null);
 
+  function createRemoteVideo(id, stream) {
+    if (!document.getElementById(id)) {
+      const newDivTag = document.createElement('div');
+      newDivTag.className = "col-3";
+
+      const newVideo = document.createElement('video');
+      newVideo.srcObject = stream;
+      newVideo.autoplay = true;
+      newVideo.muted = true;
+      newVideo.setAttribute('id', id);
+      newVideo.setAttribute('width', '100%');
+
+      newDivTag.appendChild(newVideo);
+      document.getElementById('videos').appendChild(newDivTag);
+    }
+  }
+
+  function initVideo() {
+    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+      .then(stream => {
+        window.myStream = stream;
+        var video = document.getElementById('myVideo');
+        video.srcObject = stream;
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  }
+
   useEffect(() => {
     peer.on('open', () => {
       setMyPeerId(peer.id);
@@ -34,13 +63,23 @@ export default function Call() {
       console.log('[peer - open]', peer.id);
     });
 
+    peer.on('call', (call) => {
+      console.log('[peer - call]', call);
+      call.answer(window.myStream);
+      call.on('stream', (remoteStream) => {
+        console.log('[peer - call - remoteStream]', remoteStream);
+        createRemoteVideo(call.peer, remoteStream);
+      });
+    });
+
     peer.on('connection', (connection) => {
       console.log('[peer - connection]', connection.peer);
       console.log('[peer - connection - metadata]', connection.metadata);
+
       const newJoinerMessage = `${connection.metadata.nickName} joined..`;
 
       connection.on('open', () => {
-        console.log('[peer - connection - open]', connection.peer);
+        console.log('[peer - connection - open]', connection);
         setCnns(actCnns => [...actCnns, { id: connection.peer, cn: connection }]);
         setCount(count => count + 1);
 
@@ -73,6 +112,8 @@ export default function Call() {
     peer.on('error', (err) => {
       console.log('[peer - error]', err);
     });
+
+    initVideo();
   }, []);
 
   // Send count
@@ -86,10 +127,15 @@ export default function Call() {
   useEffect(() => {
     if (message) {
       actCnns.forEach(item => {
-        item.cn.send({ type: 'message', id: message.from, message: message.message });
+        item.cn.send({ type: 'message', id: message.from, message: message.message, allPeers: actCnns.map(c => c.id) });
       });
     }
   }, [message]);
+
+  function getIdFromPeer(peerId) {
+    const arr = peerId.split('-');
+    return arr[arr.length - 1];
+  }
 
   function join() {
     if (!nickNameInput.current.value) {
@@ -111,6 +157,29 @@ export default function Call() {
       }
 
       if (data && data.type === 'message') {
+        /* const myPartId = getIdFromPeer(peer.id);
+        data.allPeers.forEach(peerid => {
+          const partId = getIdFromPeer(peerid);
+          if (myPartId !== partId) {
+            let newConn = peer.connect(peerid);
+            newConn.on('open', () => {
+              console.log(44, newConn);
+              var newCall = peer.call(peerid, window.myStream);
+              newCall.on('stream', (remoteStream) => {
+                console.log(87, remoteStream);
+              });
+            });            
+            newConn.on('call', (call) => {
+              console.log('[newConn - call]', call);
+              call.answer(window.myStream);
+              call.on('stream', (remoteStream) => {
+                console.log('[newConn - stream]', remoteStream);
+              });
+              //createRemoteVideo(newCall.peer, remoteStream);
+            });
+          }
+        }); */
+
         addTextToChat(data);
       }
     });
@@ -121,6 +190,12 @@ export default function Call() {
 
     peerConnected.on('error', (err) => {
       console.log('[peerConnected - error]', err);
+    });
+
+    let call = peer.call(id, window.myStream);
+    call.on('stream', (remoteStream) => {
+      console.log('[call - remoteStream]', remoteStream);
+      createRemoteVideo(call.peer, remoteStream);
     });
 
     setPeerConnected(peerConnected);
@@ -193,6 +268,11 @@ export default function Call() {
 
   return (
     <div>
+      <div className="row mt-4" id="videos">
+        <div className="col-3">
+          <video id="myVideo" width="100%" autoPlay="autoPlay" muted={true}></video>
+        </div>
+      </div>
       <div className="row mt-4 mb-2">
         <div className="col-12 col-md-9 text-center text-md-left mb-3 mb-md-0">
           <h2>Chat Room <span className="badge badge-primary">{count}</span></h2>
@@ -223,8 +303,7 @@ export default function Call() {
               ref={textInput}
               className="form-control"
               type="text"
-              placeholder="Your message here"
-              autoFocus="autofocus" />
+              placeholder="Your message here" />
             <div className="input-group-append">
               <button
                 className="btn btn-outline-secondary"
