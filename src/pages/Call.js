@@ -26,6 +26,18 @@ export default function Call() {
   const chatInput = useRef(null);
   const textInput = useRef(null);
   const nickNameInput = useRef(null);
+  const sendButton = useRef(null);
+
+  useEffect(() => {
+    if (textInput) {
+      textInput.current.addEventListener('keyup', (e) => {
+        if (e.keyCode === 13) {
+          e.preventDefault();
+          sendButton.current.click();
+        }
+      });
+    }
+  }, [textInput, sendButton])
 
   function createRemoteVideo(id, stream) {
     if (!document.getElementById(id)) {
@@ -309,6 +321,7 @@ export default function Call() {
                 className="btn btn-outline-secondary"
                 type="button"
                 id="button-addon1"
+                ref={sendButton}
                 onClick={() => send()}>Send</button>
             </div>
           </div>
