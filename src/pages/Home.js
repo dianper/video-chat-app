@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 export default function Home() {
   const uuid = require('uuid');
@@ -7,39 +7,28 @@ export default function Home() {
     window.location.href = `/calls/${uuid.v1()}/1`;
   }
 
-  function join() {
-    const input_callid = document.getElementById('callId');
-
-    if (!input_callid.value) {
-      input_callid.focus();
-      alert('Call ID is required!');
-      return;
-    }
-
-    window.location.href = `/calls/${input_callid.value}`;
-  }
+  useEffect(() => {
+    document.getElementById('btnJoin').classList.remove('d-none');
+  }, [])
 
   return (
     <div>
-      <h2 className="mt-4 mb-4">Join / Create Chat</h2>
-      <div className="row mb-3 justify-content-center">
-        <div className="col-10 col-md-8 col-lg-6">
+      <h2 className="text-center mb-4">Create Room</h2>
+      <div className="row mb-2">
+        <div className="col-12">
           <input
             className="form-control"
             type="text"
-            id="callId"
-            name="callId"
-            placeholder="Enter Call ID"
+            id="roomId"
+            name="roomId"
+            placeholder="Room name e.g: Brothers"
             autoFocus="autofocus" />
         </div>
       </div>
-      <div className="row justify-content-center">
-        <div className="col-12">
+      <div className="row justify-content-md-end">
+        <div className="col-12 col-md-3">
           <button
-            className="btn btn-success mr-1"
-            onClick={() => join()}>Join</button>
-            <button
-            className="btn btn-primary"
+            className="btn btn-primary btn-block"
             onClick={() => createCall()}>Create</button>
         </div>
       </div>

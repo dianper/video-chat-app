@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const Api = axios.create({
-    baseURL: 'https://moska-chat.herokuapp.com/api/',
+    baseURL: 'https://moska-chat.herokuapp.com/',
     timeout: 1000
 });
 
