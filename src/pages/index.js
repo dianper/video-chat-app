@@ -1,2 +1,2 @@
-export { default as Home } from './Home';
-export { default as Chat } from './Chat/Chat';
+export { default as Home } from './Home/Home';
+export { default as Room } from './Room/Room';

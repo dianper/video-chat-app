@@ -6,6 +6,7 @@ const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 const port = process.env.PORT || 5080;
+var rooms;
 
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -15,11 +16,68 @@ app.use(express.static(path.join(__dirname, './build')));
 /* NO MATH PATH */
 
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, './build/index.html'));
+  res.sendFile(path.join(__dirname, './build/index.html'));
 });
 
+io.on('error', (e) => console.log(e));
 io.on('connection', socket => {
-    console.log(`${socket.id} joined`);
+  if (!rooms) rooms = new Object();
+
+  socket.on('ready', (roomId) => {
+    if (!rooms[roomId]) rooms[roomId] = { users: [] };
+    rooms[roomId].users.push(socket.id);
+
+    socket.roomId = roomId;
+    socket.join(roomId);
+
+    const sockets = getSocketsByRoomId(socket.roomId);
+    for (const id in sockets) {
+      if (socket.id === id) continue;
+      setTimeout(() => {
+        socket.to(id).emit('join', socket.id);
+      }, 1000);
+    }
+  });
+
+  socket.on('leave', () => {
+    updateRooms(socket.roomId, socket.id);
+    io.emit('leave', socket.id);
+    socket.leave(socket.roomId);
+  });
+
+  socket.on('offer', (id, data) => {
+    socket.to(id).emit('offer', socket.id, data);
+  });
+
+  socket.on('answer', (id, data) => {
+    socket.to(id).emit('answer', socket.id, data);
+  });
+
+  socket.on('candidate', (id, data) => {
+    socket.to(id).emit('candidate', socket.id, data);
+  });
+
+  socket.on('disconnect', () => {
+    if (socket.roomId) {
+      updateRooms(socket.roomId, socket.id);
+      io.emit('leave', socket.id);
+      socket.leave(socket.roomId);
+    }
+  });
+
+  function updateRooms(roomId, socketId) {
+    if (rooms[roomId]) {
+      const userPosition = rooms[roomId].users.findIndex(user => user === socketId);
+      if (userPosition > -1) {
+        rooms[roomId].users.splice(userPosition, 1);
+      }
+    }
+  }
+
+  function getSocketsByRoomId(roomId) {
+    const room = io.sockets.adapter.rooms[roomId] || {};
+    return room.sockets || {};
+  }
 });
 
 /* LISTEN */

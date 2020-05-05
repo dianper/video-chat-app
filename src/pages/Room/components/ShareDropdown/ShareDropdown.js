@@ -38,7 +38,7 @@ function ShareDropdown({ id }) {
 }
 
 ShareDropdown.propTypes = {
-  id: PropTypes.string.isRequired
+  id: PropTypes.string
 }
 
 export default ShareDropdown;
