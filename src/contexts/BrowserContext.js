@@ -1,3 +1,3 @@
 import React from 'react';
 
-export const BrowserContext = React.createContext();
+export const BrowserContext = React.createContext({});

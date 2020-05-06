@@ -21,7 +21,7 @@ function SetupUserMedia(callback) {
 
 function GetUserMedia(callback) {
 	SetupUserMedia(() => {
-		navigator.mediaDevices.getUserMedia({ audio: true, video: true })
+		navigator.mediaDevices.getUserMedia({ audio: false, video: true })
 			.then(stream => callback(stream))
 			.catch(err => console.log('getUserMedia.err', err));
 	});

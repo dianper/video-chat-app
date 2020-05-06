@@ -1,14 +1,15 @@
 import React, { useEffect } from 'react';
+import PropTypes from 'prop-types';
 import MySocket from '../../utils';
 import { Video } from './components';
 import { GetUserMedia } from '../../utils';
 import { useParams } from 'react-router-dom';
 import { iceServers } from '../../config';
+import { withBrowserContext } from '../../contexts';
 
-export default function Room() {
+function Room({ onSetRoomName }) {
   const { id } = useParams();
   if (!id) window.location.href = '/';
-  window.roomId = id;
 
   const peerConnections = {};
   const addRemoteVideo = (e, id) => {
@@ -40,7 +41,6 @@ export default function Room() {
     MySocket.on('connect', () => {
       GetUserMedia((stream) => {
         window.localStream = stream;
-        document.getElementById('btnJoin').classList.remove('d-none');
         document.getElementById('localVideo').srcObject = stream;
       });
 
@@ -116,6 +116,8 @@ export default function Room() {
         removeRemoteVideo(id);
       });
     });
+
+    onSetRoomName(id);
   }, [])
 
   return (
@@ -137,3 +139,9 @@ export default function Room() {
     </>
   );
 }
+
+Room.propTypes = {
+  onSetRoomName: PropTypes.func,
+}
+
+export default withBrowserContext(Room);

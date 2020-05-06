@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import PropTypes from 'prop-types';
 import MySocket from '../../utils';
+import { withBrowserContext } from '../../contexts';
 import './Header.css';
 
-export default function Header() {
+function Header({ roomName }) {
   function join() {
     document.getElementById('btnJoin').classList.add('d-none');
     document.getElementById('btnLeave').classList.remove('d-none');
-    MySocket.emit('ready', window.roomId);
+    MySocket.emit('ready', roomName);
   }
 
   function leave() {
@@ -14,6 +16,14 @@ export default function Header() {
     document.getElementById('btnLeave').classList.add('d-none');
     MySocket.emit('leave');
   }
+
+  useEffect(() => {
+    if (roomName) {
+      document.getElementById('btnJoin').classList.remove('d-none');
+    } else {
+      document.getElementById('btnJoin').classList.add('d-none');
+    }
+  }, [roomName])
 
   return (
     <header>
@@ -27,3 +37,9 @@ export default function Header() {
     </header>
   )
 }
+
+Header.propTypes = {
+  roomName: PropTypes.string
+}
+
+export default withBrowserContext(Header);
