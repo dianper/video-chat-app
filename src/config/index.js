@@ -8,9 +8,9 @@ if (process.env.NODE_ENV !== 'development') {
 
 module.exports.iceServers = [
     {
-        urls: [
-            "stun:stun.services.mozilla.com",
-            "stun:stun.l.google.com:19302"
-        ]
+        urls: "stun:stun.services.mozilla.com"
+    },
+    {
+        urls: "stun:stun.l.google.com:19302"
     }
 ]

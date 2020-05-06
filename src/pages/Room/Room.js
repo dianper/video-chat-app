@@ -50,7 +50,7 @@ function Room({ onSetRoomName }) {
       socket.on('join', socketId => {
         const date = GetTimeString('pt-Br');
         console.log(`${date} - ${socketId} joined..`);
-        const peerConnection = new RTCPeerConnection(iceServers);
+        const peerConnection = new RTCPeerConnection();
         peerConnections[socketId] = peerConnection;
 
         window.localStream
@@ -75,7 +75,7 @@ function Room({ onSetRoomName }) {
       });
 
       socket.on('offer', (soketId, data) => {
-        const peerConnection = new RTCPeerConnection(iceServers);
+        const peerConnection = new RTCPeerConnection();
         peerConnections[soketId] = peerConnection;
 
         window.localStream
