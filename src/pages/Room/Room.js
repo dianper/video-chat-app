@@ -5,7 +5,7 @@ import { socketURL } from '../../config';
 import { Video } from './components';
 import { GetTimeString, GetUserMedia } from '../../utils';
 import { useParams } from 'react-router-dom';
-import { iceServers } from '../../config';
+import { iceServerConfiguration } from '../../config';
 import { withBrowserContext } from '../../contexts';
 
 const socket = io(socketURL);
@@ -50,7 +50,7 @@ function Room({ onSetRoomName }) {
       socket.on('join', socketId => {
         const date = GetTimeString('pt-Br');
         console.log(`${date} - ${socketId} joined..`);
-        const peerConnection = new RTCPeerConnection();
+        const peerConnection = new RTCPeerConnection(iceServerConfiguration);
         peerConnections[socketId] = peerConnection;
 
         window.localStream
@@ -75,7 +75,7 @@ function Room({ onSetRoomName }) {
       });
 
       socket.on('offer', (soketId, data) => {
-        const peerConnection = new RTCPeerConnection();
+        const peerConnection = new RTCPeerConnection(iceServerConfiguration);
         peerConnections[soketId] = peerConnection;
 
         window.localStream
