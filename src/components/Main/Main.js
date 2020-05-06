@@ -7,7 +7,7 @@ export default function Main() {
     <div className="container">
       <Switch>
         <Route exact path="/" component={Home} />
-        <Route path="/room/:id" component={Room} />
+        <Route path="/room/:roomName" component={Room} />
         <Route path="*" component={Home} />
       </Switch>
     </div>
