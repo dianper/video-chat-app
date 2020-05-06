@@ -1,11 +1,14 @@
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
-import MySocket from '../../utils';
+import io from 'socket.io-client';
+import { socketURL } from '../../config';
 import { Video } from './components';
 import { GetTimeString, GetUserMedia } from '../../utils';
 import { useParams } from 'react-router-dom';
 import { iceServers } from '../../config';
 import { withBrowserContext } from '../../contexts';
+
+const socket = io(socketURL);
 
 function Room({ onSetRoomName }) {
   const { roomName } = useParams();
@@ -38,13 +41,13 @@ function Room({ onSetRoomName }) {
   }
 
   useEffect(() => {
-    MySocket.on('connect', () => {
+    socket.on('connect', () => {
       GetUserMedia((stream) => {
         window.localStream = stream;
         document.getElementById('localVideo').srcObject = stream;
       });
 
-      MySocket.on('join', socketId => {
+      socket.on('join', socketId => {
         const date = GetTimeString('pt-Br');
         console.log(`${date} - ${socketId} joined..`);
         const peerConnection = new RTCPeerConnection(iceServers);
@@ -55,7 +58,7 @@ function Room({ onSetRoomName }) {
 
         peerConnection.createOffer()
           .then(sdp => peerConnection.setLocalDescription(new RTCSessionDescription(sdp)))
-          .then(() => MySocket.emit('offer', socketId, peerConnection.localDescription))
+          .then(() => socket.emit('offer', socketId, peerConnection.localDescription))
           .catch(err => console.log('createOffer.err', err));
 
         peerConnection.ontrack = e => {
@@ -66,12 +69,12 @@ function Room({ onSetRoomName }) {
         peerConnection.onicecandidate = e => {
           if (e.candidate) {
             console.log('onicecandidate', e, socketId);
-            MySocket.emit('candidate', socketId, e.candidate);
+            socket.emit('candidate', socketId, e.candidate);
           }
         }
       });
 
-      MySocket.on('offer', (soketId, data) => {
+      socket.on('offer', (soketId, data) => {
         const peerConnection = new RTCPeerConnection(iceServers);
         peerConnections[soketId] = peerConnection;
 
@@ -81,7 +84,7 @@ function Room({ onSetRoomName }) {
         peerConnection.setRemoteDescription(data)
           .then(() => peerConnection.createAnswer())
           .then(sdp => peerConnection.setLocalDescription(sdp))
-          .then(() => MySocket.emit('answer', soketId, peerConnection.localDescription))
+          .then(() => socket.emit('answer', soketId, peerConnection.localDescription))
           .catch(err => console.log('offer.setRemoteDescription.err', err));
 
         peerConnection.ontrack = e => {
@@ -92,33 +95,45 @@ function Room({ onSetRoomName }) {
         peerConnection.onicecandidate = e => {
           if (e.candidate) {
             console.log('onicecandidate', e, soketId);
-            MySocket.emit('candidate', soketId, e.candidate);
+            socket.emit('candidate', soketId, e.candidate);
           }
         }
       });
 
-      MySocket.on('answer', (soketId, data) => {
+      socket.on('answer', (soketId, data) => {
         console.log('answer', soketId, data);
         peerConnections[soketId]
           .setRemoteDescription(data)
           .catch(err => console.log('answer.setRemoteDescription.err', err));
       });
 
-      MySocket.on('candidate', (soketId, data) => {
+      socket.on('candidate', (soketId, data) => {
         console.log('candidate', soketId, data);
         peerConnections[soketId]
           .addIceCandidate(new RTCIceCandidate(data))
           .catch(err => console.log('addIceCandidate.err', err));
       });
 
-      MySocket.on('leave', soketId => {
+      socket.on('leave', soketId => {
         console.log('leave', soketId);
-        if (soketId === MySocket.id) {
+        if (soketId === socket.id) {
           Object.keys(peerConnections).forEach(key => removeRemoteVideo(key));
         } else {
           removeRemoteVideo(soketId);
         }
       });
+
+      if (document.getElementById("btnJoin")) {
+        document.getElementById("btnJoin").addEventListener("click", function () {
+          socket.emit('ready', roomName);
+        });
+      }
+
+      if (document.getElementById("btnLeave")) {
+        document.getElementById("btnLeave").addEventListener("click", function () {
+          socket.emit('leave');
+        });
+      }
     });
 
     onSetRoomName(roomName);

@@ -21,6 +21,7 @@ app.get('*', (req, res) => {
 
 io.on('error', (e) => console.log(e));
 io.on('connection', socket => {
+  console.log(`${socket.id} joined`);
   if (!rooms) rooms = new Object();
 
   socket.on('ready', (roomId) => {

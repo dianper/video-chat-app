@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
-import MySocket from '../../utils';
 import { withBrowserContext } from '../../contexts';
 import './Header.css';
 
@@ -8,13 +7,11 @@ function Header({ roomName }) {
   function join() {
     document.getElementById('btnJoin').classList.add('d-none');
     document.getElementById('btnLeave').classList.remove('d-none');
-    MySocket.emit('ready', roomName);
   }
 
   function leave() {
     document.getElementById('btnJoin').classList.remove('d-none');
     document.getElementById('btnLeave').classList.add('d-none');
-    MySocket.emit('leave');
   }
 
   useEffect(() => {
