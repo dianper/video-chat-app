@@ -1,42 +1,16 @@
-import React, { useEffect } from 'react';
-import PropTypes from 'prop-types';
-import { withBrowserContext } from '../../contexts';
+import React from 'react';
 import './Header.css';
 
-function Header({ roomName }) {
-  function join() {
-    document.getElementById('btnJoin').classList.add('d-none');
-    document.getElementById('btnLeave').classList.remove('d-none');
-  }
-
-  function leave() {
-    document.getElementById('btnJoin').classList.remove('d-none');
-    document.getElementById('btnLeave').classList.add('d-none');
-  }
-
-  useEffect(() => {
-    if (roomName) {
-      document.getElementById('btnJoin').classList.remove('d-none');
-    } else {
-      document.getElementById('btnJoin').classList.add('d-none');
-    }
-  }, [roomName])
-
+export default function Header() {
   return (
     <header>
       <nav className="navbar navbar-expand navbar-dark bg-dark fixed-top">
         <a className="navbar-brand" href="/">M.S.K Web Meeting</a>
         <div className="w-100 text-right">
-          <button id="btnJoin" onClick={() => join()} className="btn btn-success d-none" type="button">Join</button>
-          <button id="btnLeave" onClick={() => leave()} className="btn btn-danger d-none" type="button">Leave</button>
+          <button id="btnJoin" className="btn btn-success d-none" type="button">Join</button>
+          <button id="btnLeave" className="btn btn-danger d-none" type="button">Leave</button>
         </div>
       </nav>
     </header>
   )
 }
-
-Header.propTypes = {
-  roomName: PropTypes.string
-}
-
-export default withBrowserContext(Header);

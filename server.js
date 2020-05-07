@@ -14,12 +14,11 @@ app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, './build')));
 
 /* NO MATH PATH */
-
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, './build/index.html'));
 });
 
-io.on('error', (e) => console.log(e));
+io.on('error', (err) => console.log(err));
 io.on('connection', socket => {
   console.log(`${socket.id} joined`);
   if (!rooms) rooms = new Object();

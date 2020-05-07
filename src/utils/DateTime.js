@@ -1,5 +1,3 @@
-function GetTimeString(locale) {
+export default function GetTimeString(locale) {
     return new Date(Date.now()).toLocaleTimeString(locale);
 }
-
-export { GetTimeString };

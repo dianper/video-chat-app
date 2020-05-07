@@ -1,2 +1,2 @@
 export { default as GetUserMedia } from './UserMedia';
-export { GetTimeString } from './DateTime';
+export { default as GetTimeString } from './DateTime';
