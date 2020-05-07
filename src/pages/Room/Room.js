@@ -41,11 +41,7 @@ export default function Room() {
         <div className="col-12 text-center">
           <div className="row" id="videos">
             <div className="col-6 col-md-3">
-              <Video
-                id="localVideo"
-                autoplay={true}
-                playsinline={true}
-                muted={true} />
+              <Video id="localVideo" muted={true} />
             </div>
           </div>
         </div>

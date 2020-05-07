@@ -91,8 +91,8 @@ function addRemoteVideo(e, remoteId) {
     remoteVideo.setAttribute('id', remoteId);
     remoteVideo.className = "video";
     remoteVideo.srcObject = e.streams[0];
-    remoteVideo.playsinline = "true";
-    remoteVideo.autoplay = "true";
+    remoteVideo.autoplay = true;
+    remoteVideo.setAttribute('playsinline', true);
     remoteVideo.setAttribute('width', '100%');
     remoteVideo.play();
     div.appendChild(remoteVideo);
