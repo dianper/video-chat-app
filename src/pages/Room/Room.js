@@ -3,6 +3,8 @@ import { useParams } from 'react-router-dom';
 import { Video } from './components';
 import { GetUserMedia } from '../../utils';
 import { emitEvent } from '../../utils/Socket';
+import { BsCameraVideoFill, BsMicFill } from 'react-icons/bs';
+import './Room.css';
 
 export default function Room() {
   const { roomName } = useParams();
@@ -34,13 +36,35 @@ export default function Room() {
     }
   }, [roomName]);
 
+  function copyToClipBoard() {
+    const textArea = document.createElement('textarea');
+    textArea.value = `https://moska-chat.herokuapp.com/room/${roomName}`;
+    textArea.setAttribute('readonly', '');
+    textArea.style.position = 'absolute';
+    textArea.style.left = '-9999px';
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textArea);
+    alert('Link room copied!');
+  }
+
   return (
     <>
-      <h2 className="text-center mb-4">Room <span id="roomName">#{roomName}</span></h2>
-      <div className="row mt-5">
+      <div className="row mb-2 m-1">
+        <div className="col-8 text-truncate">
+          <h2 onClick={() => copyToClipBoard()} className="d-none d-sm-block copy"><span id="roomName">#{roomName}</span></h2>
+          <h4 onClick={() => copyToClipBoard()} className="d-md-none copy"><span id="roomName">#{roomName}</span></h4>
+        </div>
+        <div className="col-4 text-right align-self-center">
+          <button className="btn btn-sm btn-danger mr-1"><BsCameraVideoFill className="align-baseline" /></button>
+          <button className="btn btn-sm btn-danger"><BsMicFill className="align-baseline" /></button>
+        </div>
+      </div>
+      <div className="row m-1">
         <div className="col-12 text-center">
           <div className="row" id="videos">
-            <div className="col-6 col-md-3">
+            <div className="col-12 mb-3">
               <Video id="localVideo" muted={true} />
             </div>
           </div>

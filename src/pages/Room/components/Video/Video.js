@@ -5,7 +5,7 @@ import './Video.css';
 function Video({ id, autoplay, playsinline, muted }) {
   return (<video
     id={id}
-    className="video"
+    className="rounded"
     autoPlay={autoplay}
     playsInline={playsinline}
     width="100%"

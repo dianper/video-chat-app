@@ -15,7 +15,7 @@ export default function Home() {
   }
 
   return (
-    <>
+    <div className="container">
       <h2 className="text-center mb-4">Create Room</h2>
       <div className="row justify-content-center mb-2 mb-md-3">
         <div className="col-12 col-md-6">
@@ -36,6 +36,6 @@ export default function Home() {
             onClick={() => createRoom()}>Create Room</button>
         </div>
       </div>
-    </>
+    </div>
   );
 }

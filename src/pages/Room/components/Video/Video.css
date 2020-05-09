@@ -1,8 +1,0 @@
-.video {
-    border: 1.4px solid #343a40;
-    border-radius: 6px;
-  }
-
-  #localVideo.video {
-    border: 1.4px solid green;
-  }

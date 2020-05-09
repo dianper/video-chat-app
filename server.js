@@ -1,11 +1,13 @@
-const express = require('express');
 const cors = require('cors');
+const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
 const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 const port = process.env.PORT || 5080;
+const delay = 1500;
+const limitPerRoom = 9;
 var rooms;
 
 app.use(cors());
@@ -20,23 +22,27 @@ app.get('*', (req, res) => {
 
 io.on('error', (err) => console.log(err));
 io.on('connection', socket => {
-  console.log(`${socket.id} joined`);
   if (!rooms) rooms = new Object();
 
   socket.on('ready', (roomId) => {
     if (!rooms[roomId]) rooms[roomId] = { users: [] };
-    rooms[roomId].users.push(socket.id);
+    if (rooms[roomId].users.length === limitPerRoom) {
+      io.emit('full', socket.id);
+      return;
+    }
 
+    rooms[roomId].users.push(socket.id);
     socket.roomId = roomId;
     socket.join(roomId);
 
     const sockets = getSocketsByRoomId(socket.roomId);
-    for (const id in sockets) {
-      if (socket.id === id) continue;
-      setTimeout(() => {
-        socket.to(id).emit('join', socket.id);
-      }, 1000);
-    }
+    Object.keys(sockets).forEach((socketId, index) => {
+      if (socket.id !== socketId) {
+        setTimeout(() => {
+          socket.to(socketId).emit('join', socket.id);
+        }, index * delay);
+      }
+    });
   });
 
   socket.on('leave', () => {

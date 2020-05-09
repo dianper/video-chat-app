@@ -4,7 +4,7 @@ import { Room, Home } from '../../pages';
 
 export default function Main() {
   return (
-    <div className="container">
+    <div>
       <Switch>
         <Route exact path="/" component={Home} />
         <Route path="/room/:roomName" component={Room} />
