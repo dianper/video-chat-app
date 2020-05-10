@@ -111,17 +111,17 @@ function addRemoteVideo(e, remoteId) {
   if (!document.getElementById(remoteId)) {
     const div = document.createElement('div');
     const remoteVideo = document.createElement('video');
-    div.className = "col-12 mb-3";
+    div.className = "col-4 col-md-2 mb-3";
     remoteVideo.setAttribute('id', remoteId);
     remoteVideo.className = "rounded";
     remoteVideo.srcObject = e.streams[0];
     remoteVideo.autoplay = true;
     remoteVideo.setAttribute('playsinline', true);
     remoteVideo.setAttribute('width', '100%');
+    remoteVideo.setAttribute('max-height', '100%');
     remoteVideo.play();
     div.appendChild(remoteVideo);
     document.getElementById('videos').appendChild(div);
-    organizeVideos();
   }
 }
 
@@ -130,28 +130,6 @@ function removeRemoteVideo(remoteId) {
   delete peerConnections[remoteId];
   if (document.getElementById(remoteId)) {
     document.getElementById(remoteId).parentElement.remove();
-    organizeVideos();
-  }
-}
-
-function organizeVideos() {
-  const videos = document.querySelectorAll('video');
-  if (videos.length === 2) {
-    videos.forEach(video => {
-      video.parentElement.classList.remove('col-12');
-      video.parentElement.classList.add('col-6');
-    });
-  } else if (videos.length >= 3) {
-    videos.forEach(video => {
-      video.parentElement.classList.remove('col-12');
-      video.parentElement.classList.add('col-6', 'col-md-4');
-    });
-  } else {
-    const video = videos[0];
-    if (video) {
-      video.parentElement.classList.remove('col-md-4', 'col-6');
-      video.parentElement.classList.add('col-12');
-    }
   }
 }
 

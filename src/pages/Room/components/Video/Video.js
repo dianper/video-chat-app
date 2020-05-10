@@ -9,6 +9,7 @@ function Video({ id, autoplay, playsinline, muted }) {
     autoPlay={autoplay}
     playsInline={playsinline}
     width="100%"
+    max-height="100%"
     muted={muted}></video>);
 }
 

@@ -51,7 +51,7 @@ export default function Room() {
 
   return (
     <>
-      <div className="row mb-2 m-1">
+      <div className="row m-1">
         <div className="col-8 text-truncate">
           <h2 onClick={() => copyToClipBoard()} className="d-none d-sm-block copy"><span id="roomName">#{roomName}</span></h2>
           <h4 onClick={() => copyToClipBoard()} className="d-md-none copy"><span id="roomName">#{roomName}</span></h4>
@@ -64,7 +64,7 @@ export default function Room() {
       <div className="row m-1">
         <div className="col-12 text-center">
           <div className="row" id="videos">
-            <div className="col-12 mb-3">
+            <div className="col-4 col-md-2 mb-3">
               <Video id="localVideo" muted={true} />
             </div>
           </div>
