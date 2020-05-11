@@ -5,6 +5,7 @@ const path = require('path');
 const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
+const { RoomState } = require('./src/constants/RoomState');
 const port = process.env.PORT || 5080;
 const delay = 1500;
 const limitPerRoom = 12;
@@ -26,7 +27,7 @@ io.on('connection', socket => {
 
   socket.on('createroom', (roomId, cb) => {
     if (!rooms[roomId]) {
-      rooms[roomId] = { users: [] }
+      rooms[roomId] = { users: [] };
     };
 
     socket.emit('createroom', cb);
@@ -34,19 +35,19 @@ io.on('connection', socket => {
 
   socket.on('checkroom', (roomId, cb) => {
     if (!rooms[roomId]) {
-      socket.emit('checkroom', false, cb); // unavailable
-    } else {
-      socket.emit('checkroom', true, cb); // available
-    }
-  });
-
-  socket.on('ready', (roomId) => {
-    if (!rooms[roomId]) rooms[roomId] = { users: [] };
-    if (rooms[roomId].users.length === limitPerRoom) {
-      io.emit('full', socket.id);
+      socket.emit('checkroom', RoomState.Unavailable, cb);
       return;
     }
 
+    if (rooms[roomId].users.length === limitPerRoom) {
+      socket.emit('checkroom', RoomState.Full, cb);
+      return;
+    }
+
+    socket.emit('checkroom', RoomState.Available, cb);
+  });
+
+  socket.on('ready', (roomId) => {
     rooms[roomId].users.push(socket.id);
     socket.roomId = roomId;
     socket.join(roomId);

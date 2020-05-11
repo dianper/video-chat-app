@@ -96,18 +96,10 @@ socket.on('connect', () => {
     } else {
       removeRemoteVideo(socketId);
     }
-  });
+  });  
 
-  socket.on('full', socketId => {
-    if (socketId === socket.id) {
-      alert('The room is full');
-      document.getElementById('btnJoin').classList.remove('d-none');
-      document.getElementById('btnLeave').classList.add('d-none');
-    }
-  });
-
-  socket.on('checkroom', (isRoomAvailable, cb) => {
-    cb && cb(isRoomAvailable);
+  socket.on('checkroom', (roomState, cb) => {
+    cb && cb(roomState);
   });
 
   socket.on('createroom', cb => {
@@ -121,12 +113,10 @@ function addRemoteVideo(e, remoteId) {
     const remoteVideo = document.createElement('video');
     div.className = "col-4 col-md-2 mb-3";
     remoteVideo.setAttribute('id', remoteId);
-    remoteVideo.className = "rounded";
+    remoteVideo.className = "card-img-top";
     remoteVideo.srcObject = e.streams[0];
     remoteVideo.autoplay = true;
     remoteVideo.setAttribute('playsinline', true);
-    remoteVideo.setAttribute('width', '100%');
-    remoteVideo.setAttribute('max-height', '100%');
     remoteVideo.play();
     div.appendChild(remoteVideo);
     document.getElementById('videos').appendChild(div);

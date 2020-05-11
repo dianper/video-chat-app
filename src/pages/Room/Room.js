@@ -4,19 +4,20 @@ import { Video } from './components';
 import { GetUserMedia } from '../../utils';
 import { emitEvent } from '../../utils/Socket';
 import { BsCameraVideoFill, BsMicFill } from 'react-icons/bs';
+import { RoomState } from '../../constants/RoomState';
 import './Room.css';
 
 export default function Room() {
   const { roomName } = useParams();
   if (!roomName) window.location.href = '/';
 
-  const [isRoomAvailable, setIsRoomAvailable] = useState(false);
+  const [roomState, setRoomState] = useState();
 
   useEffect(() => {
-    emitEvent('checkroom', roomName, (isAvailable) => {
-      setIsRoomAvailable(isAvailable);
+    emitEvent('checkroom', roomName, (state) => {
+      setRoomState(state);
 
-      if (isAvailable) {
+      if (state === RoomState.Available) {
         GetUserMedia()
           .then(stream => {
             window.localStream = stream;
@@ -58,9 +59,10 @@ export default function Room() {
   }
 
   function renderAlert() {
-    return (<div className="alert alert-danger m-3" role="alert">
-      This room is not available.
-    </div>);
+    if (roomState) {
+      const message = roomState === RoomState.Full ? 'The room is full.' : 'The room is unavailable.';
+      return (<div className="alert alert-danger m-3" role="alert">{message}</div>);
+    }
   }
 
   function renderRoom() {
@@ -75,13 +77,9 @@ export default function Room() {
           <button className="btn btn-sm btn-danger"><BsMicFill className="align-baseline" /></button>
         </div>
       </div>
-      <div className="row m-1">
-        <div className="col-12 text-center">
-          <div className="row" id="videos">
-            <div className="col-4 col-md-2 mb-3">
-              <Video id="localVideo" muted={true} />
-            </div>
-          </div>
+      <div className="row m-1" id="videos">
+        <div className="col-4 col-md-2 mb-3">
+          <Video id="localVideo" muted={true} />
         </div>
       </div>
     </>);
@@ -89,7 +87,7 @@ export default function Room() {
 
   return (
     <>
-      {!isRoomAvailable ? renderAlert() : renderRoom()}
+      {roomState === RoomState.Available ? renderRoom() : renderAlert()}
     </>
   );
 }
