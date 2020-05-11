@@ -82,6 +82,11 @@ export default function Room() {
           <Video id="localVideo" muted={true} />
         </div>
       </div>
+      {/* <div className="card-columns m-1" id="videos">
+        <div className="card">
+          <Video id="localVideo" muted={true} />
+        </div>
+      </div> */}
     </>);
   }
 

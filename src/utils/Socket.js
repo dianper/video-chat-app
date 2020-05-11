@@ -96,14 +96,14 @@ socket.on('connect', () => {
     } else {
       removeRemoteVideo(socketId);
     }
-  });  
-
-  socket.on('checkroom', (roomState, cb) => {
-    cb && cb(roomState);
   });
 
-  socket.on('createroom', cb => {
-    cb && cb();
+  socket.on('checkroom', (roomState, id, cb) => {
+    if (id === socket.id) cb && cb(roomState);
+  });
+
+  socket.on('createroom', (id, cb) => {
+    if (id === socket.id) cb && cb();
   });
 });
 
@@ -112,6 +112,7 @@ function addRemoteVideo(e, remoteId) {
     const div = document.createElement('div');
     const remoteVideo = document.createElement('video');
     div.className = "col-4 col-md-2 mb-3";
+    //div.className = "card";
     remoteVideo.setAttribute('id', remoteId);
     remoteVideo.className = "card-img-top";
     remoteVideo.srcObject = e.streams[0];

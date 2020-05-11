@@ -28,26 +28,30 @@ io.on('connection', socket => {
   socket.on('createroom', (roomId, cb) => {
     if (!rooms[roomId]) {
       rooms[roomId] = { users: [] };
-    };
+    }
 
-    socket.emit('createroom', cb);
+    socket.emit('createroom', socket.id, cb);
   });
 
   socket.on('checkroom', (roomId, cb) => {
     if (!rooms[roomId]) {
-      socket.emit('checkroom', RoomState.Unavailable, cb);
+      socket.emit('checkroom', RoomState.Unavailable, socket.id, cb);
       return;
     }
 
     if (rooms[roomId].users.length === limitPerRoom) {
-      socket.emit('checkroom', RoomState.Full, cb);
+      socket.emit('checkroom', RoomState.Full, socket.id, cb);
       return;
     }
 
-    socket.emit('checkroom', RoomState.Available, cb);
+    socket.emit('checkroom', RoomState.Available, socket.id, cb);
   });
 
   socket.on('ready', (roomId) => {
+    if (!rooms[roomId]) {
+      rooms[roomId] = { users: [] };
+    }
+
     rooms[roomId].users.push(socket.id);
     socket.roomId = roomId;
     socket.join(roomId);
