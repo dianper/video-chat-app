@@ -5,11 +5,9 @@ import './Video.css';
 function Video({ id, autoplay, playsinline, muted }) {
   return (<video
     id={id}
-    className="rounded"
+    className="rounded camVideo"
     autoPlay={autoplay}
     playsInline={playsinline}
-    width="100%"
-    max-height="100%"
     muted={muted}></video>);
 }
 

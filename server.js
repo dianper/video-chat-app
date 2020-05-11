@@ -7,7 +7,7 @@ const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 const port = process.env.PORT || 5080;
 const delay = 1500;
-const limitPerRoom = 9;
+const limitPerRoom = 12;
 var rooms;
 
 app.use(cors());
@@ -23,6 +23,22 @@ app.get('*', (req, res) => {
 io.on('error', (err) => console.log(err));
 io.on('connection', socket => {
   if (!rooms) rooms = new Object();
+
+  socket.on('createroom', (roomId, cb) => {
+    if (!rooms[roomId]) {
+      rooms[roomId] = { users: [] }
+    };
+
+    socket.emit('createroom', cb);
+  });
+
+  socket.on('checkroom', (roomId, cb) => {
+    if (!rooms[roomId]) {
+      socket.emit('checkroom', false, cb); // unavailable
+    } else {
+      socket.emit('checkroom', true, cb); // available
+    }
+  });
 
   socket.on('ready', (roomId) => {
     if (!rooms[roomId]) rooms[roomId] = { users: [] };

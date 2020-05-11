@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Video } from './components';
 import { GetUserMedia } from '../../utils';
@@ -10,31 +10,39 @@ export default function Room() {
   const { roomName } = useParams();
   if (!roomName) window.location.href = '/';
 
+  const [isRoomAvailable, setIsRoomAvailable] = useState(false);
+
   useEffect(() => {
-    GetUserMedia()
-      .then(stream => {
-        window.localStream = stream;
-        document.getElementById('localVideo').srcObject = stream;
-        document.getElementById('btnJoin').classList.remove('d-none');
-      })
-      .catch(err => console.log(err));
+    emitEvent('checkroom', roomName, (isAvailable) => {
+      setIsRoomAvailable(isAvailable);
 
-    if (document.getElementById("btnJoin")) {
-      document.getElementById("btnJoin").addEventListener("click", () => {
-        document.getElementById('btnJoin').classList.add('d-none');
-        document.getElementById('btnLeave').classList.remove('d-none');
-        emitEvent('ready', roomName);
-      });
-    }
-
-    if (document.getElementById("btnLeave")) {
-      document.getElementById("btnLeave").addEventListener("click", () => {
-        document.getElementById('btnJoin').classList.remove('d-none');
-        document.getElementById('btnLeave').classList.add('d-none');
-        emitEvent('leave');
-      });
-    }
+      if (isAvailable) {
+        GetUserMedia()
+          .then(stream => {
+            window.localStream = stream;
+            document.getElementById('localVideo').srcObject = stream;
+            document.getElementById('btnJoin').classList.remove('d-none');
+          })
+          .catch(err => console.log(err));
+      }
+    });
   }, [roomName]);
+
+  if (document.getElementById("btnJoin")) {
+    document.getElementById("btnJoin").addEventListener("click", () => {
+      document.getElementById('btnJoin').classList.add('d-none');
+      document.getElementById('btnLeave').classList.remove('d-none');
+      emitEvent('ready', roomName);
+    });
+  }
+
+  if (document.getElementById("btnLeave")) {
+    document.getElementById("btnLeave").addEventListener("click", () => {
+      document.getElementById('btnJoin').classList.remove('d-none');
+      document.getElementById('btnLeave').classList.add('d-none');
+      emitEvent('leave');
+    });
+  }
 
   function copyToClipBoard() {
     const textArea = document.createElement('textarea');
@@ -49,12 +57,18 @@ export default function Room() {
     alert('Link room copied!');
   }
 
-  return (
-    <>
+  function renderAlert() {
+    return (<div className="alert alert-danger m-3" role="alert">
+      This room is not available.
+    </div>);
+  }
+
+  function renderRoom() {
+    return (<>
       <div className="row m-1">
         <div className="col-8 text-truncate">
           <h2 onClick={() => copyToClipBoard()} className="d-none d-sm-block copy"><span id="roomName">#{roomName}</span></h2>
-          <h4 onClick={() => copyToClipBoard()} className="d-md-none copy"><span id="roomName">#{roomName}</span></h4>
+          <h4 onClick={() => copyToClipBoard()} className="d-sm-none copy"><span id="roomName">#{roomName}</span></h4>
         </div>
         <div className="col-4 text-right align-self-center">
           <button className="btn btn-sm btn-danger mr-1"><BsCameraVideoFill className="align-baseline" /></button>
@@ -70,6 +84,12 @@ export default function Room() {
           </div>
         </div>
       </div>
+    </>);
+  }
+
+  return (
+    <>
+      {!isRoomAvailable ? renderAlert() : renderRoom()}
     </>
   );
 }

@@ -105,6 +105,14 @@ socket.on('connect', () => {
       document.getElementById('btnLeave').classList.add('d-none');
     }
   });
+
+  socket.on('checkroom', (isRoomAvailable, cb) => {
+    cb && cb(isRoomAvailable);
+  });
+
+  socket.on('createroom', cb => {
+    cb && cb();
+  });
 });
 
 function addRemoteVideo(e, remoteId) {
@@ -133,8 +141,8 @@ function removeRemoteVideo(remoteId) {
   }
 }
 
-function emitEvent(event, data) {
-  socket.emit(event, data);
+function emitEvent(event, data, cb) {
+  socket.emit(event, data, cb);
 }
 
 export { emitEvent };
