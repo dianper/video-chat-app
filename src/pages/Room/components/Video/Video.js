@@ -5,7 +5,7 @@ import './Video.css';
 function Video({ id, autoplay, playsinline, muted }) {
   return (<video
     id={id}
-    className="card-img-top"
+    width="100%"    
     autoPlay={autoplay}
     playsInline={playsinline}
     muted={muted}></video>);

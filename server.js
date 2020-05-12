@@ -8,7 +8,7 @@ const io = require('socket.io')(server);
 const { RoomState } = require('./src/constants/RoomState');
 const port = process.env.PORT || 5080;
 const delay = 1500;
-const limitPerRoom = 12;
+const limitPerRoom = 9;
 var rooms;
 
 app.use(cors());
@@ -26,11 +26,7 @@ io.on('connection', socket => {
   if (!rooms) rooms = new Object();
 
   socket.on('createroom', (roomId, cb) => {
-    if (!rooms[roomId]) {
-      rooms[roomId] = { users: [] };
-    }
-
-    socket.emit('createroom', socket.id, cb);
+    initRoom(roomId, () => socket.emit('createroom', socket.id, cb));
   });
 
   socket.on('checkroom', (roomId, cb) => {
@@ -48,11 +44,7 @@ io.on('connection', socket => {
   });
 
   socket.on('ready', (roomId) => {
-    if (!rooms[roomId]) {
-      rooms[roomId] = { users: [] };
-    }
-
-    rooms[roomId].users.push(socket.id);
+    initRoom(roomId, () => rooms[roomId].users.push(socket.id));
     socket.roomId = roomId;
     socket.join(roomId);
 
@@ -104,6 +96,14 @@ io.on('connection', socket => {
   function getSocketsByRoomId(roomId) {
     const room = io.sockets.adapter.rooms[roomId] || {};
     return room.sockets || {};
+  }
+
+  function initRoom(roomId, cb) {
+    if (!rooms[roomId]) {
+      rooms[roomId] = { users: [] };
+    }
+
+    cb && cb();
   }
 });
 

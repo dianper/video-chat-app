@@ -1,18 +1,16 @@
 import io from 'socket.io-client';
-import { iceServerConfiguration, socketURL } from '../config';
+import { IceServersConfigs, SocketConfigs } from '../config';
 import { GetTimeString } from './';
 
 const peerConnections = {};
-const socket = io(socketURL, {
-  transports: ['websocket']
-});
+const socket = io(SocketConfigs.uri, SocketConfigs.transports);
 
 socket.on('connect', () => {
   socket.on('join', socketId => {
     const date = GetTimeString('pt-Br');
     console.log(`${date} - ${socketId} joined..`);
 
-    const peerConnection = new RTCPeerConnection(iceServerConfiguration);
+    const peerConnection = new RTCPeerConnection(IceServersConfigs);
     peerConnections[socketId] = peerConnection;
 
     window.localStream
@@ -42,7 +40,7 @@ socket.on('connect', () => {
     const date = GetTimeString('pt-Br');
     console.log(`${date} - ${socketId} offer..`);
 
-    const peerConnection = new RTCPeerConnection(iceServerConfiguration);
+    const peerConnection = new RTCPeerConnection(IceServersConfigs);
     peerConnections[socketId] = peerConnection;
 
     window.localStream
@@ -110,17 +108,20 @@ socket.on('connect', () => {
 function addRemoteVideo(e, remoteId) {
   if (!document.getElementById(remoteId)) {
     const div = document.createElement('div');
+    div.setAttribute('id', `wrp${remoteId}`);
+    div.className = "col-4 col-md-3 bg-video align-self-start text-center";
+
     const remoteVideo = document.createElement('video');
-    div.className = "col-4 col-md-2 mb-3";
-    //div.className = "card";
     remoteVideo.setAttribute('id', remoteId);
-    remoteVideo.className = "card-img-top";
     remoteVideo.srcObject = e.streams[0];
     remoteVideo.autoplay = true;
+    remoteVideo.setAttribute('width', '100%');
     remoteVideo.setAttribute('playsinline', true);
     remoteVideo.play();
+
     div.appendChild(remoteVideo);
     document.getElementById('videos').appendChild(div);
+    reorderVideosByHeight();
   }
 }
 
@@ -129,7 +130,20 @@ function removeRemoteVideo(remoteId) {
   delete peerConnections[remoteId];
   if (document.getElementById(remoteId)) {
     document.getElementById(remoteId).parentElement.remove();
+    reorderVideosByHeight();
   }
+}
+
+function reorderVideosByHeight() {
+  const listVideos = [];
+  const videoNodes = document.querySelectorAll('div#videos')[0] || [];
+
+  videoNodes
+    .forEach(item => listVideos.push({ id: item.id, height: item.offsetHeight }));
+
+  listVideos
+    .sort((a, b) => a.height - b.height)
+    .map((item, index) => document.getElementById(item.id).style.order = index + 1);
 }
 
 function emitEvent(event, data, cb) {

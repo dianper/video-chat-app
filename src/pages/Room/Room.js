@@ -55,7 +55,7 @@ export default function Room() {
     textArea.select();
     document.execCommand('copy');
     document.body.removeChild(textArea);
-    alert('Link room copied!');
+    alert('Link room copied!');    
   }
 
   function renderAlert() {
@@ -78,15 +78,10 @@ export default function Room() {
         </div>
       </div>
       <div className="row m-1" id="videos">
-        <div className="col-4 col-md-2 mb-3">
+        <div id="wrpLocal" className="col-4 col-md-3 bg-video align-self-start text-center">
           <Video id="localVideo" muted={true} />
-        </div>
+        </div>        
       </div>
-      {/* <div className="card-columns m-1" id="videos">
-        <div className="card">
-          <Video id="localVideo" muted={true} />
-        </div>
-      </div> */}
     </>);
   }
 
