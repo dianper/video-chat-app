@@ -55,7 +55,7 @@ export default function Room() {
     textArea.select();
     document.execCommand('copy');
     document.body.removeChild(textArea);
-    alert('Link room copied!');    
+    alert('Link room copied!');
   }
 
   function renderAlert() {
@@ -78,16 +78,16 @@ export default function Room() {
         </div>
       </div>
       <div className="row m-1" id="videos">
-        <div id="wrpLocal" className="col-4 col-md-3 bg-video align-self-start text-center">
+        <div className="col-4 col-md-3 col-lg-2 align-self-start text-center mb-1">
           <Video id="localVideo" muted={true} />
-        </div>        
+        </div>
       </div>
     </>);
   }
 
   return (
-    <>
+    <div className="container">
       {roomState === RoomState.Available ? renderRoom() : renderAlert()}
-    </>
+    </div>
   );
 }

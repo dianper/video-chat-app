@@ -109,7 +109,7 @@ function addRemoteVideo(e, remoteId) {
   if (!document.getElementById(remoteId)) {
     const div = document.createElement('div');
     div.setAttribute('id', `wrp${remoteId}`);
-    div.className = "col-4 col-md-3 bg-video align-self-start text-center";
+    div.className = "col-4 col-md-3 col-lg-2 align-self-start text-center mb-1";
 
     const remoteVideo = document.createElement('video');
     remoteVideo.setAttribute('id', remoteId);
@@ -121,7 +121,6 @@ function addRemoteVideo(e, remoteId) {
 
     div.appendChild(remoteVideo);
     document.getElementById('videos').appendChild(div);
-    reorderVideosByHeight();
   }
 }
 
@@ -130,20 +129,7 @@ function removeRemoteVideo(remoteId) {
   delete peerConnections[remoteId];
   if (document.getElementById(remoteId)) {
     document.getElementById(remoteId).parentElement.remove();
-    reorderVideosByHeight();
   }
-}
-
-function reorderVideosByHeight() {
-  const listVideos = [];
-  const videoNodes = document.querySelectorAll('div#videos')[0] || [];
-
-  videoNodes
-    .forEach(item => listVideos.push({ id: item.id, height: item.offsetHeight }));
-
-  listVideos
-    .sort((a, b) => a.height - b.height)
-    .map((item, index) => document.getElementById(item.id).style.order = index + 1);
 }
 
 function emitEvent(event, data, cb) {

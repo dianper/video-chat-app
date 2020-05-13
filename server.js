@@ -8,7 +8,7 @@ const io = require('socket.io')(server);
 const { RoomState } = require('./src/constants/RoomState');
 const port = process.env.PORT || 5080;
 const delay = 1500;
-const limitPerRoom = 9;
+const limitPerRoom = 12;
 var rooms;
 
 app.use(cors());
